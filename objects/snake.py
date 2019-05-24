@@ -3,10 +3,13 @@ from collections import deque
 
 
 class Snake(object):
-    def __init__(self, canvas: Canvas):
+    def __init__(self, canvas: Canvas, length: int = 1):
         self.canvas = canvas
-        self.length = 1
-        self.tail_path = deque(["up" * (self.length + 1)])
+        self.length = length
+        self.action_queue = deque()
+        self.tail_path = deque()
+        for i in range(self.length + 1):
+            self.tail_path.append("up")
         self.snake = [(self.canvas.center_coordinates[0] - 1, self.canvas.center_coordinates[1]),
                       (self.canvas.center_coordinates[0] + self.length, self.canvas.center_coordinates[1])]
         for j, i in enumerate(self.snake):
@@ -20,9 +23,13 @@ class Snake(object):
         string = "<-".join(str(i) for i in self.snake)
         return f"Snake, length: {self.length}:\n{string}"
 
-    def __call__(self, direction: str):
-        head, tail = self.snake
+    def queue_action(self, direction: str):
+        self.action_queue.append(direction)
         self.tail_path.append(direction)
+
+    def make_iteration(self):
+        head, tail = self.snake
+        direction = self.action_queue.popleft()
         tail_move_direction = self.tail_path.popleft()
 
         # Move head and body
